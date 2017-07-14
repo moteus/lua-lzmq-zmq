@@ -291,6 +291,19 @@ it('should send/recv message object', function()
   assert_equal('hello world', tostring(msg))
 end)
 
+it('recv new message should raise error', function()
+  srv = assert(ctx:socket(zmq.PUB))
+  cli = assert(ctx:socket(zmq.SUB))
+  assert_true(srv:bind('inproc://test.zmq'))
+  zmq.sleep(1)
+  assert_true(cli:connect('inproc://test.zmq'))
+  assert_true(cli:subscribe(''))
+  local msg = zmq.zmq_msg_t.init_data('hello world')
+  assert_true(srv:send_msg(msg))
+  assert_equal('', tostring(msg))
+  assert_error(function()cli:recv_msg()end)
+end)
+
 end
 
 RUN()
