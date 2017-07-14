@@ -22,6 +22,7 @@ This function need to uset with original `lzmq.poller` calss and is not part of 
 
 ### Message
 Thie library uses lzmq.message class directly
+* **TODO** `msg:data()` returns string data but not lightuserdata like in `lua-zmq`.
 
 ### Poller
 Thie library uses lzmq.poller class directly
