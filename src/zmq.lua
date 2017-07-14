@@ -245,7 +245,7 @@ for _, name in ipairs(socket_options) do
     return true
   end
 
-  ZMQ_Socket[get_name] = function(self, ...)
+  ZMQ_Socket[name]     = function(self, ...)
     if not self._skt[get_name] then
       return nil, EINVAL
     end
