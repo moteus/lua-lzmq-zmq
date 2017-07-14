@@ -20,10 +20,12 @@ else
   library_version = "0.0.0"
 end
 
+local jit = jit
+
 print("------------------------------------")
 print("Module    name: " .. library_name);
 print("Module version: " .. library_version);
-print("Lua    version: " .. (_G.jit and _G.jit.version or _G._VERSION))
+print("Lua    version: " .. (jit and jit.version or _VERSION))
 print("ZeroMQ version: " .. table.concat(zmq_ver, '.'))
 print("------------------------------------")
 print("")
@@ -140,7 +142,9 @@ end)
 it('should create empty message', function()
   msg = assert(zmq.zmq_msg_t.init())
   assert_equal(0, msg:size())
-  assert_userdata(msg:data())
+  if not jit then
+    assert_userdata(msg:data())
+  end
   assert_equal('', tostring(msg))
 end)
 
