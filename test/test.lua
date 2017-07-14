@@ -207,7 +207,6 @@ end)
 
 end
 
-
 local _ENV = TEST_CASE'zmq.socket' if ENABLE then
 
 local it = IT(_ENV or _M)
@@ -276,6 +275,20 @@ it('should send/recv multipart messages', function()
   assert_equal(msg2, cli:recv())
   assert_equal(0, cli:getopt(zmq.RCVMORE))
   assert_equal(0, cli:rcvmore())
+end)
+
+it('should send/recv message object', function()
+  srv = assert(ctx:socket(zmq.PUB))
+  cli = assert(ctx:socket(zmq.SUB))
+  assert_true(srv:bind('inproc://test.zmq'))
+  zmq.sleep(1)
+  assert_true(cli:connect('inproc://test.zmq'))
+  assert_true(cli:subscribe(''))
+  local msg = zmq.zmq_msg_t.init_data('hello world')
+  assert_true(srv:send_msg(msg))
+  assert_equal('', tostring(msg))
+  assert_true(cli:recv_msg(msg))
+  assert_equal('hello world', tostring(msg))
 end)
 
 end

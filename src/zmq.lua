@@ -319,7 +319,7 @@ end
 function ZMQ_Socket:recv_msg(msg, ...)
   local ok, err = self._skt:recv_msg(msg._msg, ...)
   if not ok then return nil, zmq_error(err) end
-  return msg
+  return true
 end
 
 -- This is not part of lua-zmq API, but it allows use lzmq.poller without
