@@ -1,0 +1,63 @@
+language: c
+
+sudo: false
+
+env:
+  global:
+    - LZMQ_CC_FLAGS="-O2 -fPIC -ftest-coverage -fprofile-arcs"
+    - LZMQ_LD_FLAGS="-shared --coverage"
+
+addons:
+  apt:
+    packages:
+      - libzmq-dev
+
+matrix:
+  include:
+    - compiler: ": Lua51"
+      env: LUA="lua 5.1"
+      os: linux
+    # - compiler: ": LuaJIT20"
+    #   env: LUA="luajit 2.0"
+    #   os: linux
+
+cache:
+  directories:
+    - here
+    - $HOME/.cache/pip
+
+branches:
+  only:
+    - master
+
+before_install:
+  - export CC=gcc
+  - gcc --version
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export PATH=$PATH:~/Library/Python/2.7/bin/; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then export LZMQ_LD_FLAGS="-bundle -undefined dynamic_lookup -all_load --coverage"; fi
+  - pip install --user hererocks
+  - hererocks here -r^ --$LUA
+  - source here/bin/activate
+  - if [[ "$LUA" == "luajit 2.0" ]]; then  luarocks show lzmq-ffi > /dev/null 2>&1 || luarocks install lzmq-ffi; fi
+  - if [[ "$LUA" == "lua 5.1" ]]; then  luarocks show lzmq > /dev/null 2>&1 || luarocks install lzmq; fi
+
+install:
+  - luarocks make rockspecs/lzmq-zmq-scm-0.rockspec CFLAGS="$LZMQ_CC_FLAGS" LIBFLAG="$LZMQ_LD_FLAGS"
+
+before_script:
+  - luarocks show luacov-coveralls > /dev/null 2>&1 || luarocks install luacov-coveralls
+  - luarocks show lunitx > /dev/null 2>&1           || luarocks install lunitx
+  - luarocks show luafilesystem > /dev/null 2>&1    || luarocks install luafilesystem
+  - luarocks show dkjson > /dev/null 2>&1           || luarocks install dkjson --deps-mode=none
+
+script:
+  - cd test
+  - lunit.sh -l luacov test.lua
+
+after_success:
+  - luacov-coveralls -v
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always

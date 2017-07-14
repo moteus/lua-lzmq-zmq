@@ -1,5 +1,3 @@
-pcall(require, "luacov")
-
 local zmq         = require "zmq"
 local utils       = require "utils"
 local TEST_CASE   = require "lunit".TEST_CASE
