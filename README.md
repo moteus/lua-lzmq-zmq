@@ -16,6 +16,10 @@ This library do not provide any emulation for such cases.
 * `lua-zmq` in some cases returns second `nil` value (e.g. `zmq.zmq_msg_t.init()` returns new message and `nil`
 as second value, `socket:setopt()` returns `true` and `nil` as second value). `lzmq-zmq` returns only one value.
 
+### Context
+* `lua-zmq` do not close sockets when terminate context but just hang-up forever when try do it and there exists
+alive sockets. `lzmq-zmq` closes all opend sockets before terminate context.
+
 ### Socket
 * Library provide set/get function for all option even it read or write only.
 If option can not be set/get then function returns EINVAL error.
@@ -24,8 +28,9 @@ If option can not be set/get then function returns EINVAL error.
 This function need to uset with original `lzmq.poller` calss and is not part of original `lua-zmq` API
 
 ### Message
-Thie library uses lzmq.message class directly
-* **TODO** `msg:data()` returns string data but not lightuserdata like in `lua-zmq`.
+* `lzmq-zmq` keep data on resize message. if you have message `hello world` and then you call 
+`msg:set_size(5)` then message will contain `hello`, but `lua-zmq` does not save such data and it 
+will contain garabage but because of memory allocator it may have correct result.
 
 ### Poller
 Thie library uses lzmq.poller class directly

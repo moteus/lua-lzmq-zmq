@@ -122,7 +122,7 @@ end
 
 local EINVAL = zmq_error(lzmq.error(lzmq.errors.EINVAL))
 
-local ZMQ_Context, ZMQ_Socket, ZMQ_Poller
+local ZMQ_Context, ZMQ_Socket, ZMQ_Poller, ZMQ_Message
 
 ZMQ_Context = {} do
 ZMQ_Context.__index = ZMQ_Context
@@ -132,9 +132,6 @@ function zmq.init(threads)
     io_threads = threads or 1
   }
   if not ctx then return nil, zmq_error(err) end
-
-  -- turn on autoclose sockets
-  -- ctx:autoclose(true)
 
   return setmetatable({
     _ctx = ctx
@@ -164,6 +161,7 @@ end
 function ZMQ_Context:socket(typ)
   local skt, err = self._ctx:socket(typ)
   if not skt then return nil, zmq_error(err) end
+
   return setmetatable({
     _skt = skt
   }, ZMQ_Socket)
@@ -310,7 +308,7 @@ function ZMQ_Socket:send(msg, flags)
 end
 
 function ZMQ_Socket:send_msg(msg, flags)
-  local ok, err = self._skt:send_msg(msg, flags)
+  local ok, err = self._skt:send_msg(msg._msg, flags)
   if not ok then return nil, zmq_error(err) end
   return true
 end
@@ -321,9 +319,9 @@ function ZMQ_Socket:recv(flags)
   return msg
 end
 
-function ZMQ_Socket:recv_msg(...)
-  local msg, err = self._skt:recv_msg(...)
-  if not msg then return nil, zmq_error(err) end
+function ZMQ_Socket:recv_msg(msg, ...)
+  local ok, err = self._skt:recv_msg(msg._msg, ...)
+  if not ok then return nil, zmq_error(err) end
   return msg
 end
 
@@ -331,6 +329,88 @@ end
 -- needing write wrapper around it.
 function ZMQ_Socket:socket()
   return self._skt
+end
+
+end
+
+ZMQ_Message = {} do
+ZMQ_Message.__index = ZMQ_Message
+
+local function ZMQ_Message_new(msg)
+  return setmetatable({
+    _msg = msg
+  }, ZMQ_Message)
+end
+
+zmq.zmq_msg_t = {} do
+
+function zmq.zmq_msg_t.init()
+  local msg, err = lzmq.msg_init()
+  if not msg then return nil, zmq_error(err) end
+  return ZMQ_Message_new(msg)
+end
+
+function zmq.zmq_msg_t.init_size(size)
+  local msg, err = lzmq.msg_init_size(size)
+  if not msg then return nil, zmq_error(err) end
+  return ZMQ_Message_new(msg)
+end
+
+function zmq.zmq_msg_t.init_data(data)
+  local msg, err = lzmq.msg_init_data(data)
+  if not msg then return nil, zmq_error(err) end
+  return ZMQ_Message_new(msg)
+end
+
+end
+
+function ZMQ_Message:copy(src)
+  local ok, err = self._msg:copy(src._msg)
+  if not ok then return nil, zmq_error(err) end
+  return true
+end
+
+function ZMQ_Message:move(src)
+  local ok, err = self._msg:move(src._msg)
+  if not ok then return nil, zmq_error(err) end
+  return true
+end
+
+function ZMQ_Message:close()
+  if self._msg then
+    self._msg:close()
+    self._msg = nil
+  end
+  return true
+end
+
+function ZMQ_Message:data()
+  local res, err = self._msg:pointer()
+  if not res then return nil, zmq_error(err) end
+  return res
+end
+
+function ZMQ_Message:set_size(size)
+  local ok, err = self._msg:set_size(size)
+  if not ok then return nil, zmq_error(err) end
+  return true
+end
+
+function ZMQ_Message:set_data(data)
+  local ok, err = self._msg:set_size(#data)
+  if not ok then return nil, zmq_error(err) end
+  self._msg:set_data(data)
+  return true
+end
+
+function ZMQ_Message:size()
+  local res, err = self._msg:size()
+  if not res then return nil, zmq_error(err) end
+  return res
+end
+
+function ZMQ_Message:__tostring()
+  return self._msg:data()
 end
 
 end
@@ -343,11 +423,7 @@ end
 
 zmq.device = lzmq.device
 
-zmq.zmq_msg_t = setmetatable({
-  init      = lzmq.msg_init,
-  init_size = lzmq.msg_init_size,
-  init_data = lzmq.msg_init_data,
-},{__call = function(self, ...)
+setmetatable(zmq.zmq_msg_t,{__call = function(self, ...)
   return self.init(...)
 end})
 
