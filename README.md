@@ -1,5 +1,5 @@
 # lua-lzmq-zmq
-Wrapper around [lzmq]() library to be compatiable with lua-zmq library
+Wrapper around [lzmq](https://github.com/zeromq/lzmq) library to be compatiable with [lua-zmq](https://github.com/Neopallium/lua-zmq) library
 
  * [x] Context
  * [x] Socket
