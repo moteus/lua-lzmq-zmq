@@ -115,7 +115,7 @@ local function zmq_error(err)
   return tostring(err)
 end
 
-local EINVAL = zmq_error(lzmq.errors.EINVAL)
+local EINVAL = zmq_error(lzmq.error(lzmq.errors.EINVAL))
 
 local ZMQ_Context, ZMQ_Socket, ZMQ_Poller
 
