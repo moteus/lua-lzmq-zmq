@@ -414,6 +414,14 @@ end
 
 zmq.sleep = lzmq.utils.sleep
 
+if not sleep then
+  -- lzmq.ffi do not export zmq.utils.sleep
+  local ztimer = require "lzmq.timer"
+  zmq.sleep = function(v)
+    ztimer.sleep(v * 1000)
+  end
+end
+
 zmq.stopwatch_start = function()
   return lzmq.utils.stopwatch():start()
 end
