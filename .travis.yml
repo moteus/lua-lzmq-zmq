@@ -10,7 +10,7 @@ env:
 addons:
   apt:
     packages:
-      - libzmq-dev
+      - libzmq3-dev
 
 matrix:
   include:
@@ -52,7 +52,7 @@ before_script:
 
 script:
   - cd test
-  - lunit.sh -l luacov test.lua
+  - lunit.sh test.lua
 
 after_success:
   - luacov-coveralls -v
