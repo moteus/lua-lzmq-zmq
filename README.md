@@ -13,6 +13,8 @@ Wrapper around [lzmq](https://github.com/zeromq/lzmq) library to be compatiable 
 * Convert to string of object now is not compatiable (except for `zmq.zmq_msg_t` class)
 * libzmq has changed since 2.x version and some functionlity not avaliable (e.g. `ZMQ_HWM` or `ZMQ_SWAP` options).
 This library do not provide any emulation for such cases.
+* `lua-zmq` in some cases returns second `nil` value (e.g. `zmq.zmq_msg_t.init()` returns new message and `nil`
+as second value, `socket:setopt()` returns `true` and `nil` as second value). `lzmq-zmq` returns only one value.
 
 ### Socket
 * Library provide set/get function for all option even it read or write only.
