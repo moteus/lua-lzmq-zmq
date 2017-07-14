@@ -5,6 +5,7 @@ Wrapper around [lzmq](https://github.com/zeromq/lzmq) library to be compatiable 
  * [x] Socket
  * [x] Message
  * [x] Poller
+ * [ ] Tests
 
 ### General notes
 * Object can be either userdata or table. I do not consider underlying type like part of public API.
