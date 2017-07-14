@@ -1,5 +1,12 @@
 local lzmq = require"lzmq"
 
+local zmq = {
+  _NAME      = 'lzmq-zmq';
+  _VERSION   = '0.1.0-dev';
+  _LICENSE   = "MIT";
+  _COPYRIGHT = "Copyright (c) 2017 Alexey Melnichuk";
+}
+
 local socket_options = {
   'AFFINITY',
   'IDENTITY',
@@ -94,8 +101,6 @@ local function export_constants(src, dst)
   end
   return dst
 end
-
-local zmq = {}
 
 export_constants(lzmq, zmq)
 zmq.ZErrors = export_constants(lzmq.errors)
