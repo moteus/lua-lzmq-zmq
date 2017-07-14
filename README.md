@@ -21,8 +21,8 @@ as second value, `socket:setopt()` returns `true` and `nil` as second value). `l
 alive sockets. `lzmq-zmq` closes all opend sockets before terminate context.
 
 ### Socket
-* Library provide set/get function for all option even it read or write only.
-If option can not be set/get then function returns EINVAL error.
+* `lzmq-zmq` provides set function with and without `set_` prefix. `lua-zmq` exports function only with one name.
+E.g. `skt:set_linger` but no `skt:linger` and `skt:subscribe` but no `skt:set_subscribe`.
 
 * Socket object has one additional method `skt:socket()` which returns `lzmq.socket` object.
 This function need to uset with original `lzmq.poller` calss and is not part of original `lua-zmq` API

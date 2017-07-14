@@ -24,7 +24,7 @@ print("------------------------------------")
 print("Module    name: " .. library_name);
 print("Module version: " .. library_version);
 print("Lua    version: " .. (_G.jit and _G.jit.version or _G._VERSION))
-print("cURL   version: " .. table.concat(zmq_ver, '.'))
+print("ZeroMQ version: " .. table.concat(zmq_ver, '.'))
 print("------------------------------------")
 print("")
 
@@ -38,11 +38,29 @@ local ZMQ_IO_THREADS = zmq.IO_THREADS or 1
 
 local ENABLE = true
 
+local _ENV = TEST_CASE'zmq.module' if ENABLE then
+
+local it = IT(_ENV or _M)
+
+it('should provide public API', function()
+  assert_function(zmq.version)
+  assert_function(zmq.init)
+  assert_function(zmq.sleep)
+  assert_function(zmq.device)
+  assert_function(zmq.stopwatch_start)
+  assert_table(zmq.zmq_msg_t)
+  assert_function(zmq.zmq_msg_t.init)
+  assert_function(zmq.zmq_msg_t.init_data)
+  assert_function(zmq.zmq_msg_t.init_size)
+end)
+
+end
+
 local _ENV = TEST_CASE'zmq.context' if ENABLE then
 
 local it = IT(_ENV or _M)
 
-local err, ctx, skt
+local ctx, skt
 
 function teardown()
   if skt then skt:close() skt = nil end
@@ -190,7 +208,76 @@ end)
 end
 
 
-RUN()
+local _ENV = TEST_CASE'zmq.socket' if ENABLE then
 
---[[local msg = zmq.zmq_msg_t.init()
-assert(msg:size() == 0)]]
+local it = IT(_ENV or _M)
+
+local ctx, srv, cli
+
+function setup()
+  ctx = assert(zmq.init())
+end
+
+function teardown()
+  if cli then cli:close() cli = nil end
+  if srv then srv:close() srv = nil end
+  if ctx then ctx:term() ctx = nil end
+end
+
+it('should create socket', function()
+  srv = assert(ctx:socket(zmq.PUB))
+end)
+
+it('should set/get socket option', function()
+  srv = assert(ctx:socket(zmq.PUB))
+  assert_equal(zmq.PUB, srv:getopt(zmq.TYPE))
+  assert_equal(zmq.PUB, srv:type())
+  assert_true(srv:setopt(zmq.LINGER, 125))
+  assert_equal(125, srv:getopt(zmq.LINGER))
+  assert_equal(125, srv:linger())
+  assert_true(srv:set_linger(128))
+  assert_equal(128, srv:getopt(zmq.LINGER))
+  assert_equal(128, srv:linger())
+end)
+
+it('should send/recv strings', function()
+  srv = assert(ctx:socket(zmq.PUB))
+  cli = assert(ctx:socket(zmq.SUB))
+  assert_true(srv:bind('inproc://test.zmq'))
+  zmq.sleep(1)
+  assert_true(cli:connect('inproc://test.zmq'))
+  assert_true(cli:subscribe(''))
+  local msg = 'hello'
+  assert_true(srv:send(msg))
+  assert_equal(msg, cli:recv())
+end)
+
+it('recv should honor flags', function()
+  cli = assert(ctx:socket(zmq.SUB))
+  cli:connect('inproc://test.zmq')
+  assert_nil(cli:recv(zmq.DONTWAIT))
+end)
+
+it('should send/recv multipart messages', function()
+  srv = assert(ctx:socket(zmq.PUB))
+  cli = assert(ctx:socket(zmq.SUB))
+  assert_true(srv:bind('inproc://test.zmq'))
+  zmq.sleep(1)
+  assert_true(cli:connect('inproc://test.zmq'))
+  assert_true(cli:subscribe(''))
+
+  local msg1 = 'hello'
+  local msg2 = 'world'
+  assert_true(srv:send(msg1, zmq.SNDMORE))
+  assert_true(srv:send(msg2))
+  assert_equal(msg1, cli:recv())
+  assert_equal(1, cli:getopt(zmq.RCVMORE))
+  assert_equal(1, cli:rcvmore())
+  assert_equal(msg2, cli:recv())
+  assert_equal(0, cli:getopt(zmq.RCVMORE))
+  assert_equal(0, cli:rcvmore())
+end)
+
+end
+
+RUN()

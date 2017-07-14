@@ -186,7 +186,30 @@ end
 end
 
 ZMQ_Socket = {} do
-ZMQ_Socket.__index = ZMQ_Socket
+
+local function build_wrapper(name, fn)
+  local wrapper = function(self, ...)
+    local ok, err = fn(self._skt, ...)
+    if not ok then return nil, zmq_error(err) end
+    return ok
+  end
+  ZMQ_Socket[name] = wrapper
+  return wrapper
+end
+
+ZMQ_Socket.__index = function(self, k)
+  local v = ZMQ_Socket[k]
+  if v ~= nil then return v end
+
+  if not self._skt then return end
+
+  -- we need export only options setter/getter functions
+  local opt = string.match(k, '^set_(.+)$') or k
+  if type(lzmq[ string.upper(opt)]) == 'number' then
+    local fn = self._skt[k] or self._skt['get_' .. k]
+    if fn then return build_wrapper(k, fn) end
+  end
+end
 
 local setopt_map, getopt_map = {}, {}
 
@@ -225,32 +248,6 @@ function ZMQ_Socket:disconnect(host)
   local ok, err = self._skt:connect(host)
   if not ok then return nil, zmq_error(err) end
   return true
-end
-
--- Incompatiability. We can not know which opt is read only or write only
--- So we create functions for all options. lua-zmq provide only supported
--- functions.
-for _, name in ipairs(socket_options) do
-  name = string.lower(name)
-  local set_name, get_name = 'set_' .. name, 'get_' .. name
-
-  ZMQ_Socket[set_name] = function(self, ...)
-    if not self._skt[set_name] then
-      return nil, EINVAL
-    end
-    local ok, err = self._skt[set_name](self._skt, ...)
-    if not ok then return nil, zmq_error(err) end
-    return true
-  end
-
-  ZMQ_Socket[name]     = function(self, ...)
-    if not self._skt[get_name] then
-      return nil, EINVAL
-    end
-    local ok, err = self._skt[get_name](self._skt, ...)
-    if not ok then return nil, zmq_error(err) end
-    return ok
-  end
 end
 
 function ZMQ_Socket:setopt(opt, val)
