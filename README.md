@@ -1,5 +1,5 @@
 # lua-lzmq-zmq
-Wrapper around lzmq library to be compatiable with lua-zmq library
+Wrapper around [lzmq]() library to be compatiable with lua-zmq library
 
  * [x] Context
  * [x] Socket
@@ -14,8 +14,14 @@ Wrapper around lzmq library to be compatiable with lua-zmq library
 This library do not provide any emulation for such cases.
 
 ### Socket
-* Now library provide set/get function for all option even it read or write only.
+* Library provide set/get function for all option even it read or write only.
 If option can not be set/get then function returns EINVAL error.
 
 * Socket object has one additional method `skt:socket()` which returns `lzmq.socket` object.
 This function need to uset with original `lzmq.poller` calss and is not part of original `lua-zmq` API
+
+### Message
+Thie library uses lzmq.message class directly
+
+### Poller
+Thie library uses lzmq.poller class directly
