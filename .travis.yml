@@ -17,9 +17,9 @@ matrix:
     - compiler: ": Lua51"
       env: LUA="lua 5.1"
       os: linux
-    # - compiler: ": LuaJIT20"
-    #   env: LUA="luajit 2.0"
-    #   os: linux
+    - compiler: ": LuaJIT20"
+      env: LUA="luajit 2.0"
+      os: linux
 
 cache:
   directories:

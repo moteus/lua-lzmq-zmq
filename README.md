@@ -1,4 +1,8 @@
 # lua-lzmq-zmq
+[![Licence](http://img.shields.io/badge/Licence-MIT-brightgreen.svg)](LICENSE)
+[![Build Status](https://travis-ci.org/moteus/lua-lzmq-zmq.svg?branch=master)](https://travis-ci.org/moteus/lua-lzmq-zmq)
+[![Coverage Status](https://coveralls.io/repos/github/moteus/lua-lzmq-zmq/badge.svg)](https://coveralls.io/github/moteus/lua-lzmq-zmq)
+
 Wrapper around [lzmq](https://github.com/zeromq/lzmq) library to be compatiable with [lua-zmq](https://github.com/Neopallium/lua-zmq) library
 
  * [x] Context
