@@ -2,7 +2,7 @@ local lzmq = require"lzmq"
 
 local zmq = {
   _NAME      = 'lzmq-zmq';
-  _VERSION   = '0.1.0';
+  _VERSION   = '0.1.1-dev';
   _LICENSE   = "MIT";
   _COPYRIGHT = "Copyright (c) 2017 Alexey Melnichuk";
 }
