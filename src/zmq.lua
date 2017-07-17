@@ -426,7 +426,11 @@ zmq.stopwatch_start = function()
   return lzmq.utils.stopwatch():start()
 end
 
-zmq.device = lzmq.device
+zmq.device = function(s1, s2)
+  local ok, err = lzmq.device(s1._skt, s2._skt)
+  if not ok then return nil, zmq_error(err) end
+  return true
+end
 
 setmetatable(zmq.zmq_msg_t,{__call = function(self, ...)
   return self.init(...)
