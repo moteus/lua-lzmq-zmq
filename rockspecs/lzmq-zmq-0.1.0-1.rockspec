@@ -1,8 +1,8 @@
 package = "lzmq-zmq"
-version = "scm-0"
+version = "0.1.0-1"
 source = {
-  url = "https://github.com/moteus/lua-lzmq-zmq/archive/master.zip",
-  dir = "lua-lzmq-zmq-master",
+  url = "https://github.com/moteus/lua-lzmq-zmq/archive/v0.1.0.zip",
+  dir = "lua-lzmq-zmq-0.1.0",
 }
 
 description = {
