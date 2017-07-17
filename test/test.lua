@@ -310,4 +310,39 @@ end)
 
 end
 
+local _ENV = TEST_CASE'zmq.time' if ENABLE then
+
+local sec, k = 1000000, 0.08
+
+local it = IT(_ENV or _M)
+
+it('stopwatch and sleep should work', function()
+  local timer = zmq.stopwatch_start()
+  zmq.sleep(1)
+  local elapsed = assert_number(timer:stop())
+  assert(elapsed > (sec * (1-k)) and elapsed < (sec * (1+k)), elapsed)
+end)
+
+it('stop method should raise error if stopwatch timer already stopped', function()
+  local timer = zmq.stopwatch_start()
+  zmq.sleep(1)
+  assert_number(timer:stop())
+  assert_error(function() timer:stop() end)
+end)
+
+it('restart stopwatch', function()
+  local timer = zmq.stopwatch_start()
+  zmq.sleep(1)
+  assert_number(timer:stop())
+
+  if library_name == 'lzmq-zmq' then
+    assert(timer:start())
+    zmq.sleep(1)
+    local elapsed = assert_number(timer:stop())
+    assert(elapsed > (sec * (1-k)) and elapsed < (sec * (1+k)), elapsed)
+  end
+end)
+
+end
+
 RUN()

@@ -19,6 +19,7 @@ Wrapper around [lzmq](https://github.com/zeromq/lzmq) library to be compatiable 
 This library do not provide any emulation for such cases.
 * `lua-zmq` in some cases returns second `nil` value (e.g. `zmq.zmq_msg_t.init()` returns new message and `nil`
 as second value, `socket:setopt()` returns `true` and `nil` as second value). `lzmq-zmq` returns only one value.
+* `stopwatch` timer can not be restarted in `lua-zmq`, but `lzmq-zmq` allows stop and then restart it.
 
 ### Context
 * `lua-zmq` do not close sockets when terminate context but just hang-up forever when try do it and there exists
@@ -38,3 +39,4 @@ will contain garabage but because of memory allocator it may have correct result
 
 ### Poller
 Thie library uses lzmq.poller class directly
+
