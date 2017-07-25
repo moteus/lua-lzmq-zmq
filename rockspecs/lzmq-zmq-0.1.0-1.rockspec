@@ -7,7 +7,7 @@ source = {
 
 description = {
   summary = "Wrapper around lzmq library to be compatiable with lua-zmq library",
-  homepage = "lua-lzmq-zmq",
+  homepage = "https://github.com/moteus/lua-lzmq-zmq",
   detailed = [[]],
   license  = "MIT/X11",
 }
