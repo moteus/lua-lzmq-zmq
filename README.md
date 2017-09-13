@@ -38,5 +38,5 @@ This function need to uset with original `lzmq.poller` calss and is not part of 
 will contain garabage but because of memory allocator it may have correct result.
 
 ### Poller
-Thie library uses lzmq.poller class directly
+This library uses `lzmq.poller` class directly.
 
